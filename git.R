@@ -9,3 +9,8 @@ stopifnot(!is.null(email))
 gert::git_config_global_set("user.name",  username)
 gert::git_config_global_set("user.email", email)
 usethis::use_git()
+usethis::git_sitrep()
+usethis::create_github_token()
+gitcreds::gitcreds_set()
+
+
