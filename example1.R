@@ -44,5 +44,12 @@ matrix(c(TRUE, TRUE, TRUE, TRUE), ncol = 2)
 dim(example_mat)
 length(example_mat)
  
-cbind(1:2, 3:4) |> class()
+cbind(1:2, 3:4) |> matrix() # Another way to create matrices
+1:2 |> class()
 class(cbind(1:2, 3:4))
+
+t(example_mat)
+row_mat <- matrix(1:2, ncol = 2)
+col_mat <- matrix(3:4, ncol = 1)
+row_mat
+col_mat
