@@ -1,0 +1,46 @@
+---
+title: "Question 1"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+Cleaning the data
+```{r}
+cleaned_airquality <- na.omit(airquality)
+```
+
+Ozone stats
+```{r}
+mean(cleaned_airquality$Ozone)
+sd(cleaned_airquality$Ozone)
+min(cleaned_airquality$Ozone)
+max(cleaned_airquality$Ozone)
+```
+
+Temp stats
+```{r}
+mean(cleaned_airquality$Temp)
+sd(cleaned_airquality$Temp)
+min(cleaned_airquality$Temp)
+max(cleaned_airquality$Temp)
+```
+
+Extracting the matrices
+```{r}
+x <- cbind(cars$speed)
+y <- as.matrix(cars$dist,1)
+x_trans <- t(x)
+```
+
+Function for estimates
+```{r}
+Estimates <- function(x,y) {
+beta <- solve(x_trans%*%x) %*%x_trans%*%y
+sd <- 
+beta
+}
+```
