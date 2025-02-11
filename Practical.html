@@ -145,132 +145,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Extract the matrices</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">cbind</span>(cars<span class="sc">$</span>speed)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(cars<span class="sc">$</span>dist)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>x_trans <span class="ot">&lt;-</span> <span class="fu">t</span>(x)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      [,1]
- [1,]    4
- [2,]    4
- [3,]    7
- [4,]    7
- [5,]    8
- [6,]    9
- [7,]   10
- [8,]   10
- [9,]   10
-[10,]   11
-[11,]   11
-[12,]   12
-[13,]   12
-[14,]   12
-[15,]   12
-[16,]   13
-[17,]   13
-[18,]   13
-[19,]   13
-[20,]   14
-[21,]   14
-[22,]   14
-[23,]   14
-[24,]   15
-[25,]   15
-[26,]   15
-[27,]   16
-[28,]   16
-[29,]   17
-[30,]   17
-[31,]   17
-[32,]   18
-[33,]   18
-[34,]   18
-[35,]   18
-[36,]   19
-[37,]   19
-[38,]   19
-[39,]   20
-[40,]   20
-[41,]   20
-[42,]   20
-[43,]   20
-[44,]   22
-[45,]   23
-[46,]   24
-[47,]   24
-[48,]   24
-[49,]   24
-[50,]   25</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      [,1]
- [1,]    2
- [2,]   10
- [3,]    4
- [4,]   22
- [5,]   16
- [6,]   10
- [7,]   18
- [8,]   26
- [9,]   34
-[10,]   17
-[11,]   28
-[12,]   14
-[13,]   20
-[14,]   24
-[15,]   28
-[16,]   26
-[17,]   34
-[18,]   34
-[19,]   46
-[20,]   26
-[21,]   36
-[22,]   60
-[23,]   80
-[24,]   20
-[25,]   26
-[26,]   54
-[27,]   32
-[28,]   40
-[29,]   32
-[30,]   40
-[31,]   50
-[32,]   42
-[33,]   56
-[34,]   76
-[35,]   84
-[36,]   36
-[37,]   46
-[38,]   68
-[39,]   32
-[40,]   48
-[41,]   52
-[42,]   56
-[43,]   64
-[44,]   66
-[45,]   54
-[46,]   70
-[47,]   92
-[48,]   93
-[49,]  120
-[50,]   85</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>x_trans</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
-[1,]    4    4    7    7    8    9   10   10   10    11    11    12    12    12
-     [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25] [,26]
-[1,]    12    13    13    13    13    14    14    14    14    15    15    15
-     [,27] [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35] [,36] [,37] [,38]
-[1,]    16    16    17    17    17    18    18    18    18    19    19    19
-     [,39] [,40] [,41] [,42] [,43] [,44] [,45] [,46] [,47] [,48] [,49] [,50]
-[1,]    20    20    20    20    20    22    23    24    24    24    24    25</code></pre>
-</div>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(cars<span class="sc">$</span>dist,<span class="dv">1</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>x_trans <span class="ot">&lt;-</span> <span class="fu">t</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Calculate the beta estimates</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#beta &lt;- (x_trans*x)^-1 *x_trans*y</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(x_trans<span class="sc">%*%</span>x) <span class="sc">%*%</span>x_trans<span class="sc">%*%</span>y</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>beta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]
+[1,] 2.909132</code></pre>
+</div>
 </div>
 </section>
 

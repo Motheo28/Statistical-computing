@@ -1,0 +1,81 @@
+---
+title: "Prac 2"
+---
+
+# Step 1
+
+Generating the data points
+
+```{r}
+set.seed(1)
+x <- seq(1,100) 
+```
+
+# Step 2
+
+generate Y as a noisy sine wave
+
+```{r}
+n = 100
+ei <- rnorm(n, mean = 0, sd = 0.2^2)
+Y <- numeric(n)  
+for (i in 1:100) {
+  y_i <- sin(x[i]/10)+ei
+  Y = y_i
+}
+```
+
+# Step 3
+
+Building the lowess function
+
+```{r}
+customLowess <- function(x, y, f) {
+  
+  n = length(x)
+  k = ceiling(f*n)
+  yhat <- numeric(n)
+  W <- numeric(n)
+# finding the neighbours    
+  x_neighbour <- numeric()
+  for (j in 1:n) {
+    x_j <- x[j]
+    dist <- abs(x - x_j)
+    dist_sort <- order(dist)
+    x_neighbour = dist_sort[1:k]
+#Calculate weights on neighbours  
+  d_max <- max(x_neighbour)
+  W = (1-(dist[x_neighbour]/d_max)^3)^3
+#create diagonal matrix of the weights on neigbours
+  W = diag(W)
+#create the X matrix
+  X <- cbind(1,x[x_neighbour])
+  X_t <- t(X)
+#fit regression
+  beta_hat <- solve(X_t %*% W %*% X) %*% X_t %*% W %*% Y[x_neighbour]
+  yhat[j] = beta_hat[1] + beta_hat[2] %*% x[j]
+  }
+  #return the vector containing the yhat elements which are the smoothed out values for the x's
+  return(yhat)
+}
+
+custom_vals <- customLowess(x,Y,0.5)
+```
+
+# Step 4
+
+Using the build in lowess function to compare
+
+```{r}
+act_val <- lowess(x,Y,f=0.5, iter = 0)
+```
+
+# Step 5
+
+Plotting to compare
+
+```{r}
+plot(x, Y, ylab = "Smoothed values", xlab = "x values", main = "Custom vs Built-in LOWESS", col = "gray", pch = 16)
+lines(act_val, col = "blue", lwd = 2, lty = 2)   # Built-in LOWESS
+lines(custom_vals, col = "red", lwd = 2)  # Custom LOWESS
+```

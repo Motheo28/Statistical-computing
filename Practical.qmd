@@ -1,5 +1,5 @@
 ---
-title: "Question 1"
+title: "Project 1"
 format: html
 editor: visual
 ---
@@ -8,12 +8,16 @@ editor: visual
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
-Cleaning the data
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
 ```{r}
 cleaned_airquality <- na.omit(airquality)
 ```
 
-Ozone stats
+Statistics for the Ozone level
+
 ```{r}
 mean(cleaned_airquality$Ozone)
 sd(cleaned_airquality$Ozone)
@@ -21,7 +25,8 @@ min(cleaned_airquality$Ozone)
 max(cleaned_airquality$Ozone)
 ```
 
-Temp stats
+Statistics for the Temperature
+
 ```{r}
 mean(cleaned_airquality$Temp)
 sd(cleaned_airquality$Temp)
@@ -29,14 +34,16 @@ min(cleaned_airquality$Temp)
 max(cleaned_airquality$Temp)
 ```
 
-Extracting the matrices
+Extract the matrices
+
 ```{r}
 x <- cbind(cars$speed)
 y <- as.matrix(cars$dist,1)
 x_trans <- t(x)
 ```
 
-Function for estimates
+Calculate the beta estimates
+
 ```{r}
 Estimates <- function(x,y) {
 beta <- solve(x_trans%*%x) %*%x_trans%*%y

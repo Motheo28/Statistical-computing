@@ -1,5 +1,27 @@
-project:
-  title: "Practical 1"
+project: 
+  title: "Practicals 1, 2 and 3"
+  type: book
+  output-dir: _site
 
-editor: visual
-
+webside: 
+  navbar:
+    left:
+      - href:Prac_1.qmd
+        text:Prac 1
+      - href:Prac_2.qmd
+        text:Prac 2
+      - href:Prac_day_4.qmd
+        text:Prac day 4
+      
+book: 
+  chapters:
+  - index.qmd
+  - Prac_1.qmd
+  - Prac_2.qmd
+  - Prac_day_4.qmd
+  
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left

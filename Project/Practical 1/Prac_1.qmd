@@ -1,0 +1,52 @@
+---
+title: "Practical 1"
+---
+
+# Cleaning the data
+
+```{r}
+cleaned_airquality <- na.omit(airquality)
+```
+
+# Ozone stats
+
+```{r}
+mean(cleaned_airquality$Ozone)
+sd(cleaned_airquality$Ozone)
+min(cleaned_airquality$Ozone)
+max(cleaned_airquality$Ozone)
+```
+
+# Temp stats
+
+```{r}
+mean(cleaned_airquality$Temp)
+sd(cleaned_airquality$Temp)
+min(cleaned_airquality$Temp)
+max(cleaned_airquality$Temp)
+```
+
+# Extracting the matrices
+
+```{r}
+X <- cbind(cars$speed)
+Y <- as.matrix(cars$dist,1)
+X_trans <- t(X)
+```
+
+# Function for estimates
+
+```{r}
+Estimates <- function(X,Y) {
+beta <- solve(X_trans%*%X)%*%X_trans%*%Y
+ return(beta)
+}
+Estimates(X,Y)
+```
+
+# Using the build-in function to estimate the betas
+
+```{r}
+mod_pred <- lm(dist~speed, data = cars)
+summary(mod_pred)
+```
