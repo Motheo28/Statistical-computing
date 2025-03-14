@@ -6,3 +6,5 @@ format: html
 ## Welcome to my practical 2 site.
 
 ## Find the link to my github repository below:
+
+<https://github.com/Motheo28/Statistical-computing/tree/master/Project/Practical%202/Practical%202>
