@@ -1,0 +1,146 @@
+---
+title: "Optimisation prac"
+format: pdf
+editor: visual
+---
+
+## Question 1: Bisection Method
+
+```{r}
+g_x <- function(x) {
+    (log(x)/1+x)
+}
+
+dg <- function(x) {
+     (1/x * (1 + x) - log(x) * 1) / (1 + x)^2
+} 
+
+
+#starting pointts/values
+a = 1
+b = 5
+
+#the maximum value
+x <- (a + b)/2
+
+#iteration number
+i <- 1
+epsilon <- 1e-6 # convergence tolerance
+
+while(abs(b - a) > epsilon) {
+  #Updating the values of a and b
+  if(dg(a)*dg(x) <= 0) {
+    b = x
+  }
+  else {
+    a = x
+  }
+  #update the value of x at the first iteration
+  x = (a + b)/2
+  
+ # incrementing
+  i = i+1
+}
+x
+
+
+#checking using unitroot
+(uniroot(dg,c(1,6))$root)
+```
+
+# Question 2: Max likelihood
+
+```{r}
+
+#Observations
+counts <- c(3, 1, 1, 3, 1, 4, 3, 2, 0, 5, 0, 4, 2)
+
+lambda <- seq(-10, 10, length.out = 100)
+#Distribution
+f <- function(lambda,x) {
+  (lambda^x)*(exp(-lambda))/factorial(x)
+}
+
+#1
+likelihood_func <- function(lambda, x) {
+  prod(f(lambda, x))
+}
+
+log_likeli <- function() {
+  sum(log(f(lambda, x)))
+}
+
+likelihood_values <- sapply(lambda,likelihood_func, x = counts)
+#likelihood_values
+
+#2
+plot(lambda, likelihood_values, type = "l", col = "blue",
+     main = "Likelihood vs lambda",
+     xlab = expression(lambda), ylab = "Likelihood")
+
+#3
+?optim
+?nlm
+
+#4
+log_likeli <- function(lambda, x) {
+  sum(log(f(lambda, x)))
+}
+
+log_likeli_values <- sapply(lambda,log_likeli, x = counts)
+
+plot(lambda, log_likeli_values, type = "l", col = "blue",
+     main = "Log-Likelihood vs lambda",
+     xlab = expression(lambda), ylab = "Log-Likelihood")
+
+
+mle_optim <- optim(mean(counts),log_likeli, method = "BFGS")
+mle_optim$par
+
+(mle_nlm <- nlm(likelihood_func(lambda, counts), lambda))
+
+#5: Newtons method 
+
+```
+
+```{r}
+# Given data
+#counts <- c(3, 1, 1, 3, 1, 4, 3, 2, 0, 5, 0, 4, 2)
+
+# Define the likelihood function
+poisson_likelihood <- function(lambda) {
+  if (lambda <= 0) return(0)  # Ensure lambda is positive
+  prod(dpois(counts, lambda))
+}
+
+# Define the log-likelihood function
+poisson_log_likelihood <- function(lambda) {
+  if (lambda <= 0) return(-Inf)  # Ensure lambda is positive
+  sum(dpois(counts, lambda, log = TRUE))
+}
+
+# Generate a sequence of lambda values
+lambda_values <- seq(-10, 10, length.out = 100)
+
+# Compute likelihood and log-likelihood values
+likelihood_values <- sapply(lambda_values, poisson_likelihood)
+log_likelihood_values <- sapply(lambda_values, poisson_log_likelihood)
+
+# Plot the likelihood function
+par(mfrow = c(1, 2))  # Set up a 1-row, 2-column plotting area
+
+plot(lambda_values, likelihood_values, type = "l", col = "blue", lwd = 2,
+     xlab = expression(lambda), ylab = "Likelihood",
+     main = "Poisson Likelihood Function")
+
+# Plot the log-likelihood function
+plot(lambda_values, log_likelihood_values, type = "l", col = "red", lwd = 2,
+     xlab = expression(lambda), ylab = "Log-Likelihood",
+     main = "Poisson Log-Likelihood Function")
+
+
+
+
+
+
+```
