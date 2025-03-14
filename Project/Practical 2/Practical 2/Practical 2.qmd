@@ -1,0 +1,183 @@
+---
+title: "Practical 2"
+---
+
+## Question 1
+
+```{r}
+library(foreach)
+library(knitr)
+
+ x <- foreach(i = 1:100, .combine = rbind) %do% {
+    samp <-  rexp(100,1)
+    mean <- mean(samp)
+    variance <- var(samp)
+    
+    c(mean, variance)
+ }
+ x_df <- as.data.frame(x)
+colnames(x_df) <- c("Mean", "Variance")
+kable(x_df)  
+```
+
+# Question 2
+
+```{r}
+library(doParallel)
+library(MASS)
+
+
+cl <- makeCluster(3)
+registerDoParallel(cl)
+
+boot.sample <- matrix(0, nrow = 1000)
+time1 <- system.time({
+  y <- foreach(j = 1: 1000, .combine = c, .packages = 'MASS') %dopar% {
+  
+  sampl <- sample(galaxies, size = 82, replace = TRUE)
+  sample_median <- median(sampl)
+  boot.sample[j] = sample_median
+}
+})
+stopCluster(cl)
+cat("Parallel time:",time1)
+
+#Parallel Processing time
+time2 <- system.time({
+  result <- foreach ( j = 1:1000) %do% {
+    
+  sampl <- sample(galaxies, size = 82, replace = TRUE)
+  sample_median <- median(sampl)
+  boot.sample[j] = sample_median
+  
+  }
+})
+cat("serial time:",time2)
+```
+
+# Question 3
+
+```{r}
+library(foreach)
+library(doParallel)
+
+set.seed(1)
+n <- 50
+mean.1 <- 1
+B <- 1000
+
+# Set up parallel backend
+numCores <- makeCluster(3)  # Use all but one core
+registerDoParallel(numCores)
+
+# Perform the bootstrap using foreach
+count <- foreach(i = 1:B, .combine = '+') %do% {
+  u <- rexp(n, rate = 1)  # Generate random sample
+  bstr <- replicate(B, mean(sample(u, replace = TRUE)))  # Bootstrap samples
+  c1 <- quantile(bstr, c(0.025, 0.975))
+  
+  # Check if the true mean is within the interval
+  if (c1[1]<= mean.1 && mean.1 <= c1[2]) {
+     return(1)
+  }
+  else {
+    return(0)
+  }
+}
+
+# Calculate coverage probability
+coverage <- count / B
+# Stop the cluster
+stopCluster(numCores)
+
+# Print result
+
+cat("Estimated coverage:",coverage)
+
+
+```
+
+# Question 4
+
+```{r}
+library(foreach)
+
+set.seed(1234)
+result <- foreach(i = 1:3) %do% {
+  it <- irnorm(5)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+
+}
+
+for (i in 1:3) {
+  maxi <- max(result[[i]])
+  cat("Max for sample",i,":",maxi, "\n")
+}
+
+```
+
+# Question 5
+
+```{r}
+library(parallel)
+
+seed <- set.seed(1234)
+result <- function() {
+  it <- irnorm(5)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+}
+
+# For the foreach
+time11 <- system.time({
+result1 <- foreach(i = 1:3) %do% {
+  result()
+}
+
+for (i in 1:3) {
+  maxi <- max(result1[[i]])
+  cat("Max for sample",i,":",maxi, "\n")
+}
+})
+cat("time for the foreach loop:",time11)
+
+#For the parLapply
+cl <- makeCluster(3)
+clusterExport(cl, "result")
+invisible(clusterEvalQ(cl, library(iterators)))
+ # Setting the seed for parLapply
+set.seed(1234)
+time22 <- system.time({
+parL <- parLapply(cl, 1:3, function(i){
+  result()
+
+})
+
+for (i in 1:3) {
+  maxi <- max(parL[[i]])
+  cat("Max for sample",i,":",maxi, "\n")
+}
+})
+cat("time for parLappy:",time22)
+stopCluster(cl)
+
+# for replicate
+set.seed(1234)
+time33 <- system.time({
+result2 <- replicate(n = 3, result())
+
+for (i in 1:3) {
+  maxi <- max(result2[,i])
+  cat("Max for sample",i,":",maxi, "\n")
+}
+})
+cat("time for replicate:",time33)
+
+```
