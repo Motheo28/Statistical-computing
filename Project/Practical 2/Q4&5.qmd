@@ -1,0 +1,84 @@
+---
+title: "Q4&5"
+format: html
+editor: visual
+---
+
+```{r}
+
+library(foreach)
+
+set.seed(1234)
+result <- foreach(i = 1:3) %do% {
+  it <- irnorm(5)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+
+}
+
+for (i in 1:3) {
+  maxi <- max(result[[i]])
+  print(maxi)
+}
+
+```
+
+```{r}
+library(parallel)
+
+set.seed(1234)
+result <- function() {
+  it <- irnorm(5)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+  nextElem(it)
+}
+
+# For the foreach
+system.time({
+result1 <- foreach(i = 1:3) %do% {
+  result()
+}
+
+for (i in 1:3) {
+  maxi <- max(result1[[i]])
+  print(maxi)
+}
+})
+
+#For the parLapply
+cl <- makeCluster(3)
+clusterExport(cl, "result")
+clusterEvalQ(cl, library(iterators))
+
+system.time({
+parL <- parLapply(cl, 1:3, function(i){
+  result()
+
+})
+
+for (i in 1:3) {
+  maxi <- max(parL[[i]])
+  print(maxi)
+}
+})
+
+
+# for replicate
+set.seed(1234)
+system.time({
+result2 <- replicate(n = 3, result())
+
+for (i in 1:3) {
+  maxi <- max(result2[,i])
+  print(maxi)
+}
+})
+
+
+```

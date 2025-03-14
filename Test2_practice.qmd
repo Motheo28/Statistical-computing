@@ -1,0 +1,270 @@
+---
+title: "Prcatice 2"
+format: html
+editor: visual
+---
+
+## Q1
+
+```{r}
+# Given data
+x <- c(3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96, 
+       2.53, 3.88, 2.22, 3.47, 4.82, 2.46, 2.99, 2.54, 0.52, 2.50)
+
+n <- length(x)
+
+# 1. Method of Moments Estimator
+theta_MM <- mean(x)  # Sample mean as the method-of-moments estimator
+cat("Method-of-Moments Estimate of theta:", theta_MM, "\n")
+
+# 2. Maximum Likelihood Estimation using Newton-Raphson
+
+# Log-likelihood derivative (Score function)
+score_function <- function(theta, x) {
+  sum(sin(x - theta) / (1 - cos(x - theta)))
+}
+
+# Second derivative (Hessian)
+hessian_function <- function(theta, x) {
+  sum(cos(x - theta) / (1 - cos(x - theta))^2)
+}
+
+# Newton-Raphson implementation
+newton_raphson <- function(theta_init, x, tol = 1e-6, max_iter = 100) {
+  theta <- theta_init
+  for (i in 1:max_iter) {
+    score <- score_function(theta, x)
+    hessian <- hessian_function(theta, x)
+    
+    if (abs(hessian) < 1e-6) {
+      cat("Hessian too small, stopping iteration.\n")
+      break
+    }
+    
+    theta_new <- theta - score / hessian
+    
+    if (abs(theta_new - theta) < tol) {
+      cat("Converged in", i, "iterations. \n")
+      return(theta_new)
+    }
+    
+    theta <- theta_new
+  }
+  
+  cat("Did not converge within max iterations.\n")
+  return(theta)
+}
+
+# Start Newton-Raphson with the method-of-moments estimate
+theta_MLE_MM <- newton_raphson(theta_MM, x)
+cat("MLE of theta using MM start:", theta_MLE_MM, "\n")
+
+# Try different starting values
+theta_MLE_neg2_7 <- newton_raphson(-2.7, x)
+cat("MLE of theta starting at -2.7:", theta_MLE_neg2_7, "\n")
+
+theta_MLE_2_7 <- newton_raphson(2.7, x)
+cat("MLE of theta starting at 2.7:", theta_MLE_2_7, "\n")
+
+```
+
+Q2
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Load the data
+seals <- read.csv("seals.csv")
+
+# Plot the data
+ggplot(seals, aes(x = Year, y = Population)) +
+  geom_point(color = "blue") +
+  labs(title = "Seal Population Over Time", x = "Year", y = "Population") +
+  theme_minimal()
+
+# Logistic growth function
+logistic_growth <- function(t, P0, K, r) {
+  K / (1 + ((K - P0) / P0) * exp(-r * t))
+}
+
+# Error Sum of Squares (ESS) function
+error_sum_squares <- function(params, t, P_obs) {
+  P0 <- params[1]
+  K <- params[2]
+  r <- params[3]
+  
+  P_pred <- logistic_growth(t, P0, K, r)
+  sum((P_obs - P_pred)^2)
+}
+
+# Fit the model using nls()
+nls_model <- nls(Population ~ K / (1 + ((K - P0) / P0) * exp(-r * (Year - min(Year)))),
+                 data = seals,
+                 start = list(P0 = min(seals$Population), K = max(seals$Population), r = 0.1),
+                 algorithm = "port")
+
+# Extract nls fitted values
+seals$fitted_nls <- predict(nls_model)
+
+# Use optim() to estimate parameters
+init_params <- c(P0 = min(seals$Population), K = max(seals$Population), r = 0.1)
+
+opt_result <- optim(init_params, error_sum_squares, 
+                    t = seals$Year - min(seals$Year), P_obs = seals$Population,
+                    method = "L-BFGS-B", lower = c(0, 0, 0))
+
+# Extract optimized parameters
+opt_params <- opt_result$par
+cat("Optimized Parameters: P0 =", opt_params[1], ", K =", opt_params[2], ", r =", opt_params[3], "\n")
+
+# Compute optimized fitted values
+seals$fitted_opt <- logistic_growth(seals$Year - min(seals$Year), opt_params[1], opt_params[2], opt_params[3])
+
+# Compare both models with data
+ggplot(seals, aes(x = Year)) +
+  geom_point(aes(y = Population), color = "blue") +
+  geom_line(aes(y = fitted_nls), color = "red", size = 1, linetype = "dashed") +  # nls() fit
+  geom_line(aes(y = fitted_opt), color = "green", size = 1) +  # optim() fit
+  labs(title = "Comparison of Logistic Growth Fits",
+       x = "Year", y = "Population") +
+  theme_minimal()
+
+```
+
+Q7:Random trees
+
+```{r}
+# Load necessary library
+library(spatstat.geom)  # For spatial point patterns
+
+# Given tree locations
+trees <- matrix(c(0.2, 0.3, 
+                  0.8, 0.3, 
+                  0.3, 0.7, 
+                  0.4, 0.5, 
+                  0.7, 0.9), ncol = 2, byrow = TRUE)
+
+# Compute the nearest neighbor distances
+tree_distances <- as.matrix(dist(trees))  # Compute pairwise distances
+diag(tree_distances) <- Inf  # Avoid zero self-distances
+
+# Find the nearest neighbor distance for each tree
+nearest_distances <- apply(tree_distances, 1, min)
+
+# Compute observed test statistic
+observed_stat <- sum(nearest_distances)
+cat("Observed test statistic:", observed_stat, "\n")
+
+# Monte Carlo Simulation
+set.seed(123)  # For reproducibility
+num_simulations <- 1000  # Number of Monte Carlo simulations
+simulated_stats <- numeric(num_simulations)
+
+for (i in 1:num_simulations) {
+  # Generate 5 random trees in the unit square
+  random_trees <- matrix(runif(10), ncol = 2)
+  
+  # Compute nearest neighbor distances
+  random_distances <- as.matrix(dist(random_trees))
+  diag(random_distances) <- Inf  # Avoid zero self-distances
+  
+  # Find nearest neighbor distance for each tree
+  nearest_random <- apply(random_distances, 1, min)
+  
+  # Compute test statistic for this simulation
+  simulated_stats[i] <- sum(nearest_random)
+}
+
+# Compute Monte Carlo p-value
+p_value <- mean(simulated_stats <= observed_stat)
+cat("Monte Carlo p-value:", p_value, "\n")
+
+# Plot histogram of simulated test statistics
+hist(simulated_stats, breaks = 30, col = "lightblue", main = "Monte Carlo Test Distribution",
+     xlab = "Sum of Nearest Neighbor Distances", ylab = "Frequency")
+
+# Add observed statistic as a red vertical line
+abline(v = observed_stat, col = "red", lwd = 2)
+legend("topright", legend = c("Observed Statistic"), col = "red", lwd = 2)
+
+```
+
+Q8: Area of a polygon
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Define polygon vertices
+polygon_x <- c(0.2, 0.4, 0.8, 0.5)  # X-coordinates
+polygon_y <- c(0.0, 0.25, 0.0, 1.0)  # Y-coordinates
+
+# Function to compute actual area using Shoelace formula
+actual_area <- abs(sum(polygon_x * c(polygon_y[-1], polygon_y[1]) - 
+                       polygon_y * c(polygon_x[-1], polygon_x[1]))) / 2
+
+cat("Actual area of polygon:", actual_area, "\n")
+
+# Bounding box limits
+x_min <- min(polygon_x)
+x_max <- max(polygon_x)
+y_min <- min(polygon_y)
+y_max <- max(polygon_y)
+
+# Monte Carlo estimation function
+monte_carlo_area <- function(N) {
+  # Generate random points inside bounding box
+  x_rand <- runif(N, x_min, x_max)
+  y_rand <- runif(N, y_min, y_max)
+  
+  # Check if points are inside polygon using `point.in.polygon`
+  points_inside <- sp::point.in.polygon(x_rand, y_rand, polygon_x, polygon_y)
+  inside_count <- sum(points_inside == 1)  # Count points inside
+  
+  # Estimate area (ratio of points inside * bounding box area)
+  estimated_area <- (inside_count / N) * ((x_max - x_min) * (y_max - y_min))
+  
+  return(estimated_area)
+}
+
+# Number of Monte Carlo samples
+N <- 1000
+estimated_area <- monte_carlo_area(N)
+cat("Monte Carlo estimated area:", estimated_area, "\n")
+
+# Compute 95% confidence interval
+simulated_areas <- replicate(1000, monte_carlo_area(N))
+area_mean <- mean(simulated_areas)
+area_sd <- sd(simulated_areas)
+ci_lower <- area_mean - 1.96 * (area_sd / sqrt(1000))
+ci_upper <- area_mean + 1.96 * (area_sd / sqrt(1000))
+
+cat("95% Confidence Interval for Area Estimate: [", ci_lower, ",", ci_upper, "]\n")
+
+# Compute coverage probability (how often the true area is within CI)
+ci_matrix <- t(replicate(1000, {
+  sim_areas <- replicate(1000, monte_carlo_area(N))
+  ci_l <- mean(sim_areas) - 1.96 * (sd(sim_areas) / sqrt(1000))
+  ci_u <- mean(sim_areas) + 1.96 * (sd(sim_areas) / sqrt(1000))
+  c(ci_l, ci_u)
+}))
+
+coverage <- mean(ci_matrix[, 1] <= actual_area & ci_matrix[, 2] >= actual_area)
+cat("Coverage probability of 95% CI:", coverage, "\n")
+
+# Visualization: Plot polygon and sampled points
+plot_data <- data.frame(x = polygon_x, y = polygon_y)
+
+ggplot(plot_data, aes(x, y)) +
+  geom_polygon(fill = "lightblue", alpha = 0.5) +
+  geom_point(data = data.frame(x = runif(1000, x_min, x_max), 
+                               y = runif(1000, y_min, y_max)),
+             aes(x, y), color = "red", alpha = 0.2) +
+  labs(title = "Monte Carlo Estimation of Polygon Area",
+       subtitle = paste("Estimated Area:", round(estimated_area, 4)),
+       x = "X-coordinate", y = "Y-coordinate") +
+  theme_minimal()
+
+```

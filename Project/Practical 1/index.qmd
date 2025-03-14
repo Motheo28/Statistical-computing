@@ -6,4 +6,6 @@ author: "Motheo Mokgabudi"
 # Welcome to my practical assignment webside.
 
 # Please find the link to my github repository below:
+https://github.com/Motheo28/Statistical-computing/tree/master/Project/Practical%201
+
 

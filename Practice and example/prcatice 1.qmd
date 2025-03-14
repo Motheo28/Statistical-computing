@@ -1,0 +1,244 @@
+---
+title: "R_Practice_and_examples"
+author: "Motheo"
+format: pdf
+editor: visual
+---
+
+## Example 1
+
+```{r}
+x <- c(1,2,3)
+y <- c(4,5,6)
+
+(binded_column <- cbind(x,y))
+(binded_row <- rbind(x,y))
+```
+
+```{r}
+my_list <- list(num = 1, vec = c(1, 2, 3), mat = matrix(1:6, nrow = 2))
+(my_list)
+(my_list$mat[2,2])
+```
+
+```{r}
+df <- data.frame(name = c("Alice", "Bob"), age = c(25, 30))
+
+df$name           # Extracts the "name" column
+df[1, ]           # Returns the first row
+df[df$age > 25, ] # Filters rows where age is greater than 25
+table(df$name)  # Counts occurrences of each name
+```
+
+# Example 3
+
+```{r}
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+library(dplyr)
+data(flights, package = "nycflights13")
+flights
+
+(flights |> filter(month == 1))
+
+(flights |> arrange(dep_delay))
+
+(flights |> distinct(origin, dest))
+
+
+(flights |> select(year, month, day, dep_delay))
+(flights |> select(year:day))
+(flights |> select(!year:arr_delay))
+(flights |>
+  mutate(speed = distance / air_time * 60) |>
+  select(distance, air_time, speed))
+(flights |> rename(YEAR = year))
+(flights |> relocate(carrier, flight))
+(flights |> relocate(carrier, flight, .before = year))
+
+(flights |> group_by(month))
+(flights |> group_by(month) |> summarise(avg_delay = mean(dep_delay, na.rm = TRUE)))
+
+```
+
+# Example 4
+
+```{r}
+if (!requireNamespace("tidyr", quietly = TRUE)) {
+  install.packages("tidyr")
+}
+library(tidyr)
+data(billboard, package = "tidyr")
+data(cms_patient_experience, package = "tidyr")
+billboard
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), # columns to pivot (display along rows)
+    names_to = "week",  # new column for the column names
+    values_to = "rank", # new column for the values
+    values_drop_na = TRUE # drop rows with NA values
+  )
+
+cms_patient_experience
+cms_patient_experience |> 
+  pivot_wider(
+    id_cols = c("org_pac_id", "org_nm"), # columns to keep as identifiers
+    names_from = measure_cd, # column to spread (unique entries become columns)
+    values_from = prf_rate # column to use for values (values become cell contents)
+  )
+```
+
+# Example 5
+
+```{r}
+library(dplyr)
+data("flights", package = "nycflights13")
+flights2 <- flights |> 
+  select(year, time_hour, origin, dest, tailnum, carrier)
+data("airlines", package = "nycflights13")
+data("planes", package = "nycflights13")
+df1 <- tibble(key = c(1, 2, 2), val_x = c("x1", "x2", "x3"))
+df2 <- tibble(key = c(1, 2, 2), val_y = c("y1", "y2", "y3"))
+
+flights2
+airlines
+planes
+df1
+df2
+
+# Add full airline names to flights2 data
+flights2 |> left_join(airlines)
+flights2 |> left_join(planes, join_by(tailnum))
+# Only keep rows where both x and y have a matching key
+df1 |> inner_join(df2)
+# Keep only origin airports that appear in flights2
+airports |> semi_join(flights2, join_by(faa == origin))
+# Find tail numbers in flights2 that are missing from planes
+flights2 |> anti_join(planes, join_by(tailnum)) |> distinct(tailnum)
+
+```
+
+# Example 6(ggplots)
+
+```{r}
+pkg_vec <- c("ggplot2", "palmerpenguins", "ggthemes")
+for (x in pkg_vec) {
+  if (!requireNamespace(x, quietly = TRUE)) {
+    install.packages(x, dependencies = TRUE)
+  }
+  # if you want to programmatically attach
+  # libraries, this is the way to to do it
+  library(x, character.only = TRUE)
+}
+
+penguins
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g))
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species))
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  scale_color_colorblind()
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  facet_wrap(~ island)
+
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+  ) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  scale_color_colorblind()
+
+
+# Install and load cowplot if not already installed
+if (!requireNamespace("cowplot", quietly = TRUE)) {
+  install.packages("cowplot")
+}
+library(cowplot)
+
+# Create two example plots
+library(ggplot2)
+library(palmerpenguins)
+library(ggthemes)
+
+p1 <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(title = "Scatterplot: Flipper Length vs Body Mass") +
+  scale_color_colorblind() +
+  theme_cowplot()  # using cowplot theme for consistent font sizes
+
+p2 <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method = "loess") +
+  labs(title = "Scatterplot: Bill Length vs Bill Depth") +
+  scale_color_colorblind() +
+  theme_cowplot()
+
+# Combine the two plots into one figure with labels
+combined_plot <- plot_grid(
+  p1, p2,
+  labels = c("A", "B"),    # Add subplot labels
+  label_size = 16,         # Adjust label size if needed
+  align = "hv",            # Align both horizontally and vertically
+  ncol = 1
+)                # Arrange side by side
+# Print the combined plot
+combined_plot
+```
+
+# Example 7(tables)
+
+```{r}
+pkg_vec <- c("dplyr", "palmerpenguins", "knitr")
+for (x in pkg_vec) {
+  if (!requireNamespace(x, quietly = TRUE)) {
+    install.packages(x, dependencies = TRUE)
+  }
+  # if you want to programmatically attach
+  # libraries, this is the way to to do it
+  library(x, character.only = TRUE)
+}
+
+#| results: asis
+# Create a summary table of key statistics by species
+penguin_summary <- penguins |>
+  group_by(species) |>
+  summarise(
+    `Flipper length` = round(mean(flipper_length_mm, na.rm = TRUE), 2),
+    `Body Mass` = round(mean(body_mass_g, na.rm = TRUE), 2),
+    Count = n(),
+    .groups = "drop"
+  ) |>
+  rename(Species = species)
+
+# Display the table using knitr::kable
+kable(
+  penguin_summary,
+  caption = "Summary statistics for penguin easurements. Values are rounded to 2 decimal places. Abbreviations: FL = Flipper Length (mm), BM = Body Mass (g)."
+)
+
+```
